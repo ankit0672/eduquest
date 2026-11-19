@@ -20,18 +20,24 @@ let inMemoryDB = {
 
 // Initialize seed data
 export const initLocalStore = () => {
-  try {
-    if (fs.existsSync(DB_FILE)) {
-      const data = fs.readFileSync(DB_FILE, 'utf-8');
-      const parsed = JSON.parse(data);
-      if (parsed.subjects && parsed.subjects.length > 0 && parsed.quizzes && parsed.quizzes.length > 0) {
-        inMemoryDB = parsed;
-        console.log(`📦 Loaded existing local file database (${inMemoryDB.subjects.length} subjects, ${inMemoryDB.quizzes.length} quizzes).`);
-        return;
+  // In production, ALWAYS seed fresh so bcrypt hashes are consistent.
+  // In development, load from file to preserve local state.
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!isProduction) {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const data = fs.readFileSync(DB_FILE, 'utf-8');
+        const parsed = JSON.parse(data);
+        if (parsed.subjects && parsed.subjects.length > 0 && parsed.quizzes && parsed.quizzes.length > 0) {
+          inMemoryDB = parsed;
+          console.log(`📦 Loaded existing local file database (${inMemoryDB.subjects.length} subjects, ${inMemoryDB.quizzes.length} quizzes).`);
+          return;
+        }
       }
+    } catch (err) {
+      console.warn('Could not read existing local DB file, initializing fresh store.', err.message);
     }
-  } catch (err) {
-    console.warn('Could not read existing local DB file, initializing fresh store.', err.message);
   }
 
   // Seed default demo user
