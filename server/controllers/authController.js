@@ -4,7 +4,11 @@ import User from '../models/User.js';
 import { getIsMongoConnected } from '../config/db.js';
 import { getStore, saveLocalStore } from '../config/store.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'eduquest_super_secret_jwt_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('❌ FATAL: JWT_SECRET environment variable is not set!');
+  process.exit(1);
+}
 
 const generateToken = (id) => {
   return jwt.sign({ id }, JWT_SECRET, { expiresIn: '30d' });

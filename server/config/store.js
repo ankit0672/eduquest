@@ -169,7 +169,7 @@ export const saveLocalStore = () => {
   }
 };
 
-// Immediate initialization on module load so store is NEVER empty
-initLocalStore();
+// NOTE: initLocalStore() is called explicitly by db.js when MongoDB is unavailable.
+// Do NOT call it here on module load — it must only run as a fallback.
 
 export const getStore = () => inMemoryDB;
